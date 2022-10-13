@@ -18,15 +18,17 @@ The first step is to create a configuration file for the system to test under th
 After the creating the configuration file, the tool can executed as:
 
 ```
-python run.py --test <test> --inst <fp_inst> --isa <isa> --precision <data_precision> --ld_st_ratio <ld_st_ratio> --threads <num_threads> [--only_ld] [--interleaved] <path_config_file>
+python run.py --test <test> --inst <fp_inst> --num_ops <num_ops> --isa <isa> --precision <data_precision> --ld_st_ratio <ld_st_ratio> --dram_bytes <dram_bytes> is the size of the array used for the DRAM benchmark in KiB; --threads <num_threads> [--only_ld] [--interleaved] <path_config_file>
 ```
 
 where
  - --test <test> is the test to be performed (roofline, fp, mem);
  - --inst <fp_inst> is the floating point instruction (fma, add, mul, div);
+ - --num_ops <num_ops> is the number of FP operations used for the FP benchmark;
  - --isa <isa> is the instruction set extension (avx512, avx, sse, scalar);
  - --precision <data_precision> is the precision of the data (dp, sp);
  - --ld_st_ratio <ld_st_ratio> is the number of loads per store involed in the memory benchmarks;
+ - --dram_bytes <dram_bytes> is the size of the array used for the DRAM benchmark in KiB;
  - --threads <num_threads> is the number of threads used for the test;
  - [--only_ld] indicates that the memory benchmarks will just contain loads (<ld_st_ratio> is ignored);
  - [--interleaved] indicates if the cores belong to interleaved numa domains (e.g. core 0 -> node 0, core 1 -> node 1, core 2 -> node 0, etc). Used for thread binding;
@@ -39,7 +41,7 @@ A simple run can be executed with the command
 python run.py <path_config_file>
 ```
 
-which by default runs the micro-benchmarks necessary to obtain CARM data, for AVX512 instructions and double-precision varaibles. The FP instruction used is the FMA and the memory benchmarks contain 2 loads per each store. 
+which by default runs the micro-benchmarks necessary to obtain CARM data, for AVX512 instructions and double-precision varaibles. The FP instruction used is the FMA (32768 operations) and the memory benchmarks contain 2 loads per each store, with the DRAM test using an array with size 512MiB. 
 
 
 For additional information regarding the input arguments, run the command:

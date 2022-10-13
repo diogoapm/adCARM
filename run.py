@@ -78,7 +78,7 @@ def plot_roofline(name, data, ct):
     plt.savefig('Results/' + name + '_roofline_' + str(ct.time()) + '_' + str(ct.date()) + '.svg')
 
 #Run roofline tests
-def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, num_ld, num_st, threads, interleaved):
+def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, num_ld, num_st, threads, interleaved, num_ops, dram_bytes):
     
     data = {}
 
@@ -127,8 +127,8 @@ def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, nu
 
     data['L3'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
 
-    #Run DRAM Test (Done with  512 MiB)
-    num_reps = int(512*1024*1024/(threads*2*mem_inst_size[isa][precision]*(num_ld+num_st)))
+    #Run DRAM Test
+    num_reps = int(dram_bytes*1024/(threads*2*mem_inst_size[isa][precision]*(num_ld+num_st)))
 
     os.system("./Bench/Bench -test MEM -num_LD " + str(num_ld) + " -num_ST " + str(num_st) + " -precision " + precision + " -num_rep " + str(num_reps))
     
@@ -141,13 +141,13 @@ def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, nu
 
     data['DRAM'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
 
-    #Run FP Test (Done with 32768 Operations)
+    #Run FP Test
     if(inst == 'fma'):
         factor = 2
     else:
         factor = 1
 
-    num_fp = int(32768/(factor*ops_fp[isa][precision]))
+    num_fp = int(num_ops/(factor*ops_fp[isa][precision]))
 
     os.system("./Bench/Bench -test FLOPS -op " + inst + " -precision " + precision + " -fp " + str(num_fp))
     
@@ -160,7 +160,8 @@ def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, nu
 
     data['FP'] = float(threads*num_fp*factor*ops_fp[isa][precision]*float(freq)*float(out[1]))/float(out[0])
 
-    #print(data)
+    if(os.path.isdir('Results') == False):
+        os.mkdir('Results')
 
     ct = datetime.datetime.now()
 
@@ -193,6 +194,8 @@ def main():
     parser.add_argument('config', help='Path for the system configuration file')
     parser.add_argument('-t', '--threads', default=1, nargs='?', type = int, help='Number of threads for the micro-benchmarking (Default: 1)')
     parser.add_argument('-i', '--interleaved',  dest='interleaved', action='store_const', const=1, default=0, help='For thread binding when cores are interleaved between numa domains (Default: 0)')
+    parser.add_argument('-ops', '--num_ops',  default=32768, nargs='?', type = int, help='Number of FP operations to be used in FP test (Default: 32768)')
+    parser.add_argument('--dram_bytes',  default=524288, nargs='?', type = int, help='Size of the array for the DRAM test in KiB (Default: 524288 (512 MiB))')
 
     args = parser.parse_args()
     print(args)
@@ -220,7 +223,7 @@ def main():
         else:
             run_mem(name, freq, args.size, args.isa, args.precision, num_ld, num_st) """
     else:
-        run_roofline(name, freq, l1_size, l2_size, l3_size, args.inst, args.isa, args.precision, num_ld, num_st, args.threads, args.interleaved)
+        run_roofline(name, freq, l1_size, l2_size, l3_size, args.inst, args.isa, args.precision, num_ld, num_st, args.threads, args.interleaved, args.num_ops, args.dram_bytes)
 
 if __name__ == "__main__":
     main()
