@@ -2,7 +2,7 @@
 
 <p>
   <a href="https://doi.org/10.1109/L--CA.2013.6" alt="Publication">
-    <img src="https://img.shields.io/badge/DOI-10.1109/L--CA.2013.6-blue.svg"/></a>
+    <img src="https://img.shields.io/badge/DOI-10.1109/L-CA.2013.6-blue.svg"/></a>
     
 </p>
 
