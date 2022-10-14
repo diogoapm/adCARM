@@ -11,7 +11,7 @@ This tool performs the micro-benchmarking necessary to constuct the Cache-Aware 
 
 The first step is to create a configuration file for the system to test under the **config** folder. This configuration file must include four fields:
 - identifier of the system
-- nominal frequency of the CPU
+- nominal frequency of the CPU (in Ghz)
 - L1 size per core (in KiB)
 - L2 size per core (in KiB)
 - Total L3 size (in KiB)
