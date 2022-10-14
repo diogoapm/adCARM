@@ -1,5 +1,17 @@
 # adCARM
 
+<p>
+  <a href="https://doi.org/10.1109/L-CA.2013.6" alt="Publication">
+    <img src="https://img.shields.io/badge/DOI-10.1109/L-CA.2013.6-blue.svg"/></a>
+    
+</p>
+
+<p>
+  <a href="https://doi.org/10.1016/j.future.2020.01.044" alt="Publication">
+    <img src="https://img.shields.io/badge/DOI-10.1016/j.future.2020.01.044-blue.svg"/></a>
+    
+</p>
+
 This tool performs the micro-benchmarking necessary to constuct the Cache-Aware Roofline Model (CARM) for floating-point operations on Intel CPUs. It supports different instruction set extensions (AVX512, AVX, SSE and Scalar), different data precisions (double- and single-precision), different floating point instructions (fused multiply and add, addition, multiplication and division). The micro-benchmarks can be performed for any number of threads. The tool provides as output a vizualization of CARM, as well as the measurements obtained for the different memory levels and selected FP instruction.
 
 ## Requirements
