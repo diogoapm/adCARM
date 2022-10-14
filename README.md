@@ -42,7 +42,7 @@ A simple run can be executed with the command
 python run.py <path_config_file>
 ```
 
-which by default runs the micro-benchmarks necessary to obtain CARM data, for AVX512 instructions and double-precision varaibles. The FP instruction used is the FMA (32768 operations) and the memory benchmarks contain 2 loads per each store, with the DRAM test using an array with size 512MiB. 
+which by default runs the micro-benchmarks necessary to obtain CARM data, for AVX512 instructions and double-precision variables. The FP instruction used is the FMA (32768 operations) and the memory benchmarks contain 2 loads per each store, with the DRAM test using an array with size 512MiB. 
 
 
 For additional information regarding the input arguments, run the command:
