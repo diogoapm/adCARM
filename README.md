@@ -5,15 +5,16 @@ This tool performs the micro-benchmarking necessary to constuct the Cache-Aware 
 ## Requirements
 - gcc (>= 4.9 for AVX512 tests and only tested with gcc 9.3)
 - python (only tested with python 3.8.8)
+    - matplolib (only tested with 3.3.4)
 
 ## How to use
 
 The first step is to create a configuration file for the system to test under the **config** folder. This configuration file must include four fields:
 - identifier of the system
 - nominal frequency of the CPU
-- L1 size (in KiB)
-- L2 size (in KiB)
-- L3 size (in KiB)
+- L1 size per core (in KiB)
+- L2 size per core (in KiB)
+- Total L3 size (in KiB)
 
 After the creating the configuration file, the tool can executed as:
 
@@ -49,7 +50,6 @@ For additional information regarding the input arguments, run the command:
 ```
 python run.py -h
 ```
-
 
 ## In papers and reports, please refer to this tool as follows
 
