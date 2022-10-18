@@ -125,8 +125,8 @@ void * benchmark_test(void *t_args){
 	long tid = (long)args->tid;
     float freq = args->freq;
 
-	long long tsc_s;
-	long long tsc_e;
+	volatile long long tsc_s;
+	volatile long long tsc_e;
 	
 	#if defined (MEM) || defined (DIV)
 		PRECISION * test_var = (PRECISION*)_mm_malloc(NUM_REP*OPS*(NUM_LD+NUM_ST)*sizeof(PRECISION),ALIGN);

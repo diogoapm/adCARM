@@ -36,9 +36,9 @@ void write_asm_fp (int long long fp, char * op, int flops, char * assembly_op_fl
 	
 	//Creating Test Function
 	if(strcmp(op,"div") == 0){
-		fprintf(file,"static inline void test_function(PRECISION * test_var, int long long num_rep_max){\n");
+		fprintf(file,"static inline __attribute__((always_inline)) void test_function(PRECISION * test_var, int long long num_rep_max){\n");
 	}else{
-		fprintf(file,"static inline void test_function(int long long num_rep_max){\n");
+		fprintf(file,"static inline __attribute__((always_inline)) void test_function(int long long num_rep_max){\n");
 	}
 	
 	fprintf(file,"\t__asm__ __volatile__ (\n");

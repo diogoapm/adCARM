@@ -1,5 +1,5 @@
 #define FP_INST 2048
-static inline void test_function(int long long num_rep_max){
+static inline __attribute__((always_inline)) void test_function(int long long num_rep_max){
 	__asm__ __volatile__ (
 		"movq %0, %%r8\n\t\t"
 		"Loop2_%=:\n\t\t"
