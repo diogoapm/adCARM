@@ -69,8 +69,8 @@ def plot_roofline(name, data, ct):
     plt.xlabel('Arithmetic Intensity [flops/bytes]', fontsize=18)
     plt.setp(ax.get_xticklabels(), fontsize=18)
     plt.setp(ax.get_yticklabels(), fontsize=18)
-    plt.yscale('log', basey=2)
-    plt.xscale('log', basex=2)
+    plt.yscale('log', base=2)
+    plt.xscale('log', base=2)
     plt.legend(fontsize=18, loc='lower right')
     new_rc_params = {'text.usetex': False,"svg.fonttype": 'none'}
     plt.rcParams.update(new_rc_params)
