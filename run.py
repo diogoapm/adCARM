@@ -84,145 +84,142 @@ def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, nu
     
     #Compile benchmark generator
     os.system("make clean && make isa=" + isa)
-
-    #Run L1 Test 
-    num_reps = int(int(l1_size)*1024/(2*mem_inst_size[isa][precision]*(num_ld+num_st)))
+    if (test_type == 'L1' or test_type == 'roofline'):
+        #Run L1 Test 
+        num_reps = int(int(l1_size)*1024/(2*mem_inst_size[isa][precision]*(num_ld+num_st)))
+        
+        os.system("./Bench/Bench -test MEM -num_LD " + str(num_ld) + " -num_ST " + str(num_st) + " -precision " + precision + " -num_rep " + str(num_reps))
+        
+        if(interleaved):
+            result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq, "--interleaved"], stdout=subprocess.PIPE)
+        else:
+            result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
     
-    os.system("./Bench/Bench -test MEM -num_LD " + str(num_ld) + " -num_ST " + str(num_st) + " -precision " + precision + " -num_rep " + str(num_reps))
+        out = result.stdout.decode('utf-8').split(',')
+        print ("---------L1 RESULTS-----------")
+        print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
+        data['L1'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
+        #print ("EXTRA MODIFIERS:", float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq)))
+        
+        print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
     
-    if(interleaved):
-        result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq, "--interleaved"], stdout=subprocess.PIPE)
-    else:
-        result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
-
-    out = result.stdout.decode('utf-8').split(',')
-    print ("---------L1 RESULTS-----------")
-    print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
-    data['L1'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
-    #print ("EXTRA MODIFIERS:", float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq)))
+        print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
+        print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
+        print ("BANDWIDTH (Gbps):", data['L1'])
+        
+    if (test_type == 'L2' or test_type == 'roofline'):
+        #Run L2 Test
+        num_reps = int(1024*(int(l1_size) + (int(l2_size) - int(l1_size))/2)/(mem_inst_size[isa][precision]*(num_ld+num_st)))
     
-    print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
-
-    print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
-    print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
-    print ("BANDWIDTH (Gbps):", data['L1'])
-
-    #Run L2 Test
-    num_reps = int(1024*(int(l1_size) + (int(l2_size) - int(l1_size))/2)/(mem_inst_size[isa][precision]*(num_ld+num_st)))
-
-    os.system("./Bench/Bench -test MEM -num_LD " + str(num_ld) + " -num_ST " + str(num_st) + " -precision " + precision + " -num_rep " + str(num_reps))
+        os.system("./Bench/Bench -test MEM -num_LD " + str(num_ld) + " -num_ST " + str(num_st) + " -precision " + precision + " -num_rep " + str(num_reps))
+        
+        if(interleaved):
+            result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq, "--interleaved"], stdout=subprocess.PIPE)
+        else:
+            result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
+        
+        out = result.stdout.decode('utf-8').split(',')
+        print ("---------L2 RESULTS-----------")
+        print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
+        data['L2'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
     
-    if(interleaved):
-        result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq, "--interleaved"], stdout=subprocess.PIPE)
-    else:
-        result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
+       
+        print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
     
-    out = result.stdout.decode('utf-8').split(',')
-    print ("---------L2 RESULTS-----------")
-    print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
-    data['L2'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
-
-   
-    print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
-
-    print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
-    print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
-    print ("BANDWIDTH (Gbps):", data['L2'])
-
-    #Run L3 Test 
-    num_reps = int(1024*(int(l2_size)*threads + (int(l3_size) - int(l2_size)*threads)/2)/(threads*mem_inst_size[isa][precision]*(num_ld+num_st)))
-
-    os.system("./Bench/Bench -test MEM -num_LD " + str(num_ld) + " -num_ST " + str(num_st) + " -precision " + precision + " -num_rep " + str(num_reps))
+        print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
+        print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
+        print ("BANDWIDTH (Gbps):", data['L2'])
+        
+    if (test_type == 'L3' or test_type == 'roofline'):
+        #Run L3 Test 
+        num_reps = int(1024*(int(l2_size)*threads + (int(l3_size) - int(l2_size)*threads)/2)/(threads*mem_inst_size[isa][precision]*(num_ld+num_st)))
     
-    if(interleaved):
-        result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq, "--interleaved"], stdout=subprocess.PIPE)
-    else:
-        result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
-   
-    out = result.stdout.decode('utf-8').split(',')
-    print ("---------L3 RESULTS-----------")
-    print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
-    data['L3'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
-
+        os.system("./Bench/Bench -test MEM -num_LD " + str(num_ld) + " -num_ST " + str(num_st) + " -precision " + precision + " -num_rep " + str(num_reps))
+        
+        if(interleaved):
+            result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq, "--interleaved"], stdout=subprocess.PIPE)
+        else:
+            result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
+       
+        out = result.stdout.decode('utf-8').split(',')
+        print ("---------L3 RESULTS-----------")
+        print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
+        data['L3'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
     
-    print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
-
-    print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
-    print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
-    print ("BANDWIDTH (Gbps):", data['L3'])
-
-    #Run DRAM Test
-    num_reps = int(dram_bytes*1024/(threads*2*mem_inst_size[isa][precision]*(num_ld+num_st)))
-
-    os.system("./Bench/Bench -test MEM -num_LD " + str(num_ld) + " -num_ST " + str(num_st) + " -precision " + precision + " -num_rep " + str(num_reps))
+        
+        print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
     
-    if(interleaved):
-        result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq, "--interleaved"], stdout=subprocess.PIPE)
-    else:
-        result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
+        print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
+        print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
+        print ("BANDWIDTH (Gbps):", data['L3'])
+        
+    if (test_type == 'DRAM' or test_type == 'roofline'):
+        #Run DRAM Test
+        num_reps = int(dram_bytes*1024/(threads*2*mem_inst_size[isa][precision]*(num_ld+num_st)))
     
-    out = result.stdout.decode('utf-8').split(',')
-    print ("---------DRAM RESULTS-----------")
-    print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
-    data['DRAM'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
-
+        os.system("./Bench/Bench -test MEM -num_LD " + str(num_ld) + " -num_ST " + str(num_st) + " -precision " + precision + " -num_rep " + str(num_reps))
+        
+        if(interleaved):
+            result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq, "--interleaved"], stdout=subprocess.PIPE)
+        else:
+            result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
+        
+        out = result.stdout.decode('utf-8').split(',')
+        print ("---------DRAM RESULTS-----------")
+        print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
+        data['DRAM'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
     
-    print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
-
-    print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
-    print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
-    print ("BANDWIDTH (Gbps):", data['DRAM'])
-
-    #Run FP Test
-    if(inst == 'fma'):
-        factor = 2
-    else:
-        factor = 1
-
-    num_fp = int(num_ops/(factor*ops_fp[isa][precision]))
-
-    os.system("./Bench/Bench -test FLOPS -op " + inst + " -precision " + precision + " -fp " + str(num_fp))
+        
+        print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
     
-    if(interleaved):
-        result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq, "--interleaved"], stdout=subprocess.PIPE)
-    else:
-        result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
+        print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
+        print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
+        print ("BANDWIDTH (Gbps):", data['DRAM'])
+
+    if (test_type == 'FP' or test_type == 'roofline'):
+        #Run FP Test
+        if(inst == 'fma'):
+            factor = 2
+        else:
+            factor = 1
     
-    out = result.stdout.decode('utf-8').split(',')
-    print ("---------FP RESULTS-----------")
-    print ("Total Cycles:", out[0],"| Total Inner Loop Reps:", out[1], "| Number of threads:", threads, "| Number of reps:", num_fp,"| Instruction:", inst, "| Floating point operations per instruction:", (factor*ops_fp[isa][precision]), "| Frequency:", freq)
-    data['FP'] = float(threads*num_fp*factor*ops_fp[isa][precision]*float(freq)*float(out[1]))/float(out[0])
-
-    print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
-
-    print ("ISTRUCTION PER CYCLE:", threads*num_fp*factor*ops_fp[isa][precision]*float(out[1])/float(out[0]))
-    print ("BYTES PER CYCLE:", threads*num_fp*factor*ops_fp[isa][precision]*float(out[1])/float(out[0]))
-    print ("GFLOPS:", data['FP'])
-
-    if(os.path.isdir('Results') == False):
-        os.mkdir('Results')
-
-    ct = datetime.datetime.now()
-
-    #Plot Roofline
-    plot_roofline(name, data, ct)
-
-    f = open('Results/' + name + '_data_roofline_' + str(ct.time()) + '_' + str(ct.date()) + '.out', 'w')
-    for d, v in data.items():
-        f.write(str(d) + ": " + str(v) + '\n')
-    f.close()
-
-""" #Run fp test
-def run_fp(name, freq, l1_size, l2_size, l3_size, inst, isa, precision):
-    print('FP Test')
-
-#Run mem test
-def run_mem(name, freq, l1_size, l2_size, l3_size, isa, precision, num_ld, num_st):
-    print('MEM Test') """
+        num_fp = int(num_ops/(factor*ops_fp[isa][precision]))
+    
+        os.system("./Bench/Bench -test FLOPS -op " + inst + " -precision " + precision + " -fp " + str(num_fp))
+        
+        if(interleaved):
+            result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq, "--interleaved"], stdout=subprocess.PIPE)
+        else:
+            result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
+        
+        out = result.stdout.decode('utf-8').split(',')
+        print ("---------FP RESULTS-----------")
+        print ("Total Cycles:", out[0],"| Total Inner Loop Reps:", out[1], "| Number of threads:", threads, "| Number of reps:", num_fp,"| Instruction:", inst, "| Floating point operations per instruction:", (factor*ops_fp[isa][precision]), "| Frequency:", freq)
+        data['FP'] = float(threads*num_fp*factor*ops_fp[isa][precision]*float(freq)*float(out[1]))/float(out[0])
+    
+        print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
+    
+        print ("ISTRUCTION PER CYCLE:", threads*num_fp*factor*ops_fp[isa][precision]*float(out[1])/float(out[0]))
+        print ("BYTES PER CYCLE:", threads*num_fp*factor*ops_fp[isa][precision]*float(out[1])/float(out[0]))
+        print ("GFLOPS:", data['FP'])
+        
+    if (test_type == 'roofline'):
+        if(os.path.isdir('Results') == False):
+            os.mkdir('Results')
+    
+        ct = datetime.datetime.now()
+        
+        #Plot Roofline
+        plot_roofline(name, data, ct)
+    
+        f = open('Results/' + name + '_data_roofline_' + str(ct.time()) + '_' + str(ct.date()) + '.out', 'w')
+        for d, v in data.items():
+            f.write(str(d) + ": " + str(v) + '\n')
+        f.close()
 
 def main():
     parser = argparse.ArgumentParser(description='Script to run micro-benchmarks to construct Cache-Aware Roofline Model')
-    parser.add_argument('--test', default='roofline', nargs='?', choices=['fp', 'mem', 'roofline'], help='Type of the test. Roofline test measures the bandwidth of the different memory levels and FP Performance (Default: roofline)')
+    parser.add_argument('--test', default='roofline', nargs='?', choices=['FP', 'L1', 'L2', 'L3', 'DRAM', 'roofline'], help='Type of the test. Roofline test measures the bandwidth of the different memory levels and FP Performance (Default: roofline)')
     parser.add_argument('--inst', default='fma', nargs='?', choices=['fma', 'add', 'mul', 'div'], help='FP Instruction (Default: fma)')
     parser.add_argument('--isa', default='avx512', nargs='?', choices=['avx512', 'avx', 'sse', 'scalar'], help='ISA (Default: avx512)')
     parser.add_argument('-p', '--precision', default='dp', nargs='?', choices=['dp', 'sp'], help='Data Precision (Default: dp)')
