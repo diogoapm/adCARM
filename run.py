@@ -78,7 +78,7 @@ def plot_roofline(name, data, ct):
     plt.savefig('Results/' + name + '_roofline_' + str(ct.time()) + '_' + str(ct.date()) + '.svg')
 
 #Run roofline tests
-def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, num_ld, num_st, threads, interleaved, num_ops, dram_bytes):
+def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, num_ld, num_st, threads, interleaved, num_ops, dram_bytes, test_type):
     
     data = {}
     
@@ -258,7 +258,7 @@ def main():
         else:
             run_mem(name, freq, args.size, args.isa, args.precision, num_ld, num_st) """
     else:
-        run_roofline(name, freq, l1_size, l2_size, l3_size, args.inst, args.isa, args.precision, num_ld, num_st, args.threads, args.interleaved, args.num_ops, args.dram_bytes)
+        run_roofline(name, freq, l1_size, l2_size, l3_size, args.inst, args.isa, args.precision, num_ld, num_st, args.threads, args.interleaved, args.num_ops, args.dram_bytes, args.test)
 
 if __name__ == "__main__":
     main()
