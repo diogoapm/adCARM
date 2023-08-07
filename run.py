@@ -81,7 +81,7 @@ def plot_roofline(name, data, ct):
 def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, num_ld, num_st, threads, interleaved, num_ops, dram_bytes):
     
     data = {}
-
+    
     #Compile benchmark generator
     os.system("make clean && make isa=" + isa)
 
@@ -96,8 +96,16 @@ def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, nu
         result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
 
     out = result.stdout.decode('utf-8').split(',')
-    
+    print ("---------L1 RESULTS-----------")
+    print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
     data['L1'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
+    #print ("EXTRA MODIFIERS:", float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq)))
+    
+    print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
+
+    print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
+    print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
+    print ("BANDWIDTH (Gbps):", data['L1'])
 
     #Run L2 Test
     num_reps = int(1024*(int(l1_size) + (int(l2_size) - int(l1_size))/2)/(mem_inst_size[isa][precision]*(num_ld+num_st)))
@@ -110,8 +118,16 @@ def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, nu
         result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
     
     out = result.stdout.decode('utf-8').split(',')
-
+    print ("---------L2 RESULTS-----------")
+    print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
     data['L2'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
+
+   
+    print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
+
+    print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
+    print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
+    print ("BANDWIDTH (Gbps):", data['L2'])
 
     #Run L3 Test 
     num_reps = int(1024*(int(l2_size)*threads + (int(l3_size) - int(l2_size)*threads)/2)/(threads*mem_inst_size[isa][precision]*(num_ld+num_st)))
@@ -124,8 +140,16 @@ def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, nu
         result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
    
     out = result.stdout.decode('utf-8').split(',')
-
+    print ("---------L3 RESULTS-----------")
+    print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
     data['L3'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
+
+    
+    print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
+
+    print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
+    print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
+    print ("BANDWIDTH (Gbps):", data['L3'])
 
     #Run DRAM Test
     num_reps = int(dram_bytes*1024/(threads*2*mem_inst_size[isa][precision]*(num_ld+num_st)))
@@ -138,8 +162,16 @@ def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, nu
         result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
     
     out = result.stdout.decode('utf-8').split(',')
-
+    print ("---------DRAM RESULTS-----------")
+    print ("Total Cycles:", out[0],"Total Inner Loop Reps:", out[1], "Number of threads:", threads, "Number of reps:", num_reps,"Number of loads:", num_ld,"Number of stores:", num_st, "Memory instruction size:", mem_inst_size[isa][precision], "Frequency:", freq)
     data['DRAM'] = float(threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(freq))*float(out[1])/float(out[0])
+
+    
+    print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
+
+    print ("ISTRUCTION PER CYCLE:", threads*num_reps*(num_ld+num_st)*float(out[1])/float(out[0]))
+    print ("BYTES PER CYCLE:", threads*num_reps*(num_ld+num_st)*mem_inst_size[isa][precision]*float(out[1])/float(out[0]))
+    print ("BANDWIDTH (Gbps):", data['DRAM'])
 
     #Run FP Test
     if(inst == 'fma'):
@@ -157,8 +189,15 @@ def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, nu
         result = subprocess.run(["./bin/test", "-threads", str(threads), "-freq", freq], stdout=subprocess.PIPE)
     
     out = result.stdout.decode('utf-8').split(',')
-
+    print ("---------FP RESULTS-----------")
+    print ("Total Cycles:", out[0],"| Total Inner Loop Reps:", out[1], "| Number of threads:", threads, "| Number of reps:", num_fp,"| Instruction:", inst, "| Floating point operations per instruction:", (factor*ops_fp[isa][precision]), "| Frequency:", freq)
     data['FP'] = float(threads*num_fp*factor*ops_fp[isa][precision]*float(freq)*float(out[1]))/float(out[0])
+
+    print ("CYCLES PER INNER LOOP:", float(out[0])/float(out[1]))
+
+    print ("ISTRUCTION PER CYCLE:", threads*num_fp*factor*ops_fp[isa][precision]*float(out[1])/float(out[0]))
+    print ("BYTES PER CYCLE:", threads*num_fp*factor*ops_fp[isa][precision]*float(out[1])/float(out[0]))
+    print ("GFLOPS:", data['FP'])
 
     if(os.path.isdir('Results') == False):
         os.mkdir('Results')
@@ -172,7 +211,6 @@ def run_roofline(name, freq, l1_size, l2_size, l3_size, inst, isa, precision, nu
     for d, v in data.items():
         f.write(str(d) + ": " + str(v) + '\n')
     f.close()
-
 
 """ #Run fp test
 def run_fp(name, freq, l1_size, l2_size, l3_size, inst, isa, precision):
