@@ -8,8 +8,8 @@ import numpy as np
 import datetime
 
 #Mapping between ISA and memory transfer size
-mem_inst_size = {"avx512": {"sp": 64, "dp": 64}, "avx": {"sp": 32, "dp": 32}, "sse": {"sp": 16, "dp": 16}, "scalar": {"sp": 4, "dp": 8}}
-ops_fp = {"avx512": {"sp": 16, "dp": 8}, "avx": {"sp": 8, "dp": 4}, "sse": {"sp": 4, "dp": 2}, "scalar": {"sp": 1, "dp": 1}}
+mem_inst_size = {"avx512": {"sp": 64, "dp": 64}, "avx": {"sp": 32, "dp": 32}, "avx2": {"sp": 32, "dp": 32}, "sse": {"sp": 16, "dp": 16}, "scalar": {"sp": 4, "dp": 8}}
+ops_fp = {"avx512": {"sp": 16, "dp": 8}, "avx": {"sp": 8, "dp": 4}, "avx2": {"sp": 8, "dp": 4}, "sse": {"sp": 4, "dp": 2}, "scalar": {"sp": 1, "dp": 1}}
 
 #Read system configuration file
 def read_config(config_file):
@@ -221,7 +221,7 @@ def main():
     parser = argparse.ArgumentParser(description='Script to run micro-benchmarks to construct Cache-Aware Roofline Model')
     parser.add_argument('--test', default='roofline', nargs='?', choices=['FP', 'L1', 'L2', 'L3', 'DRAM', 'roofline'], help='Type of the test. Roofline test measures the bandwidth of the different memory levels and FP Performance (Default: roofline)')
     parser.add_argument('--inst', default='fma', nargs='?', choices=['fma', 'add', 'mul', 'div'], help='FP Instruction (Default: fma)')
-    parser.add_argument('--isa', default='avx512', nargs='?', choices=['avx512', 'avx', 'sse', 'scalar'], help='ISA (Default: avx512)')
+    parser.add_argument('--isa', default='avx512', nargs='?', choices=['avx512', 'avx', 'avx2', 'sse', 'scalar'], help='ISA (Default: avx512)')
     parser.add_argument('-p', '--precision', default='dp', nargs='?', choices=['dp', 'sp'], help='Data Precision (Default: dp)')
     parser.add_argument('-ldst', '--ld_st_ratio',  default=2, nargs='?', type = int, help='Load/Store Ratio (Default: 2)')
     parser.add_argument('--only_ld',  dest='only_ld', action='store_const', const=1, default=0, help='Run only loads in mem test (ld_st_ratio is ignored)')
